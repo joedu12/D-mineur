@@ -4,9 +4,9 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Grille {
-	enum Difficulté {Facile, Moyen, Difficile};
+	enum Difficulte {Facile, Moyen, Difficile};
 	int nbCases, nbMines, chercherX, chercherY;
-	Difficulté difficulté;
+	Difficulte difficulte;
 	Scanner clavier = new Scanner(System.in);
 	Case tableauCases[][];
 	
@@ -34,7 +34,7 @@ public class Grille {
 		} while(chercherX != 0);
 	} 
 	
-	void réglageDifficulté(Difficulté diff) {
+	void r�glageDifficult�(Difficulte diff) {
 		switch(diff)
 		{
 			case Facile	: nbCases = 10; nbMines = 10; break;
@@ -42,7 +42,7 @@ public class Grille {
 			case Difficile	: nbCases = 20; nbMines = 30; break;
 		}
 		
-		this.difficulté = diff;
+		this.difficulte = diff;
 	}
 	
 	void initialisation() {
@@ -83,7 +83,7 @@ public class Grille {
 		System.out.println("******************************");
 		
 		Grille grille = new Grille();
-		grille.réglageDifficulté(Difficulté.Facile);
+		grille.r�glageDifficult�(Difficulte.Facile);
 		grille.initialisation();
 		grille.afficher();
 	}
