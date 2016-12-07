@@ -53,13 +53,22 @@ public class Grille {
 		
 		tableauCases[X][Y].setDecouverte(true);
 		if(tableauCases[X][Y].isBombe()) perdu = true;
+
+		// calcule le nombre de bombes autour de cette case
+		int x=0, y=0; z=0;
+		for(x=-1; x<2; x++)
+			for(y=-1; y<2; y++)	{
+				try { if(tableauCases[X+x][Y+y].isBombe()) z++;}
+				catch(ArrayIndexOutOfBoundsException e) {} // évite un planton si on dépasse la taille de la matrice
+			}
+		tableauCases[X][Y].setValeur(z);
 	}
 	
-	void réglageDifficulté(Difficulte diff) {
+	void reglageDifficulte(Difficulte diff) {
 		switch(diff)
 		{
-			case Facile	: nbCases = 10; nbMines = 10; break;
-			case Moyen	: nbCases = 15; nbMines = 20; break;
+			case Facile		: nbCases = 10; nbMines = 10; break;
+			case Moyen		: nbCases = 15; nbMines = 20; break;
 			case Difficile	: nbCases = 20; nbMines = 30; break;
 		}
 		
@@ -67,9 +76,9 @@ public class Grille {
 	}
 	
 	void initialisation() {
-		tableauCases = new Case[nbCases][nbCases]; // on initialise la matrice de cases
-		
+		// on initialise la matrice de cases
 		int i=0, x=0, y=0;
+		tableauCases = new Case[nbCases][nbCases];
 		
 		for(x=0; x<nbCases; x++)
 			for(y=0; y<nbCases; y++)
@@ -104,7 +113,7 @@ public class Grille {
 		System.out.println("******************************");
 		
 		Grille grille = new Grille();
-		grille.réglageDifficulté(Difficulte.Facile);
+		grille.reglageDifficulte(Difficulte.Facile);
 		grille.initialisation();
 		grille.afficher();
 	}
