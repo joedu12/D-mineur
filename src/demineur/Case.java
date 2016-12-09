@@ -1,5 +1,9 @@
 package demineur;
 
+/**
+ * Classe qui permet de donner des propriétés à nos cases
+ * @author joevin guilhem alice
+ */
 public class Case {
 	// attributs privés
 	boolean bombe, decouverte, drapeau;
