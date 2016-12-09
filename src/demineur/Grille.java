@@ -44,24 +44,27 @@ public class Grille {
 	}
 	
 	void decouvrirCase() {
-		int X=0, Y=0, z=0;
-		for(int x=0; x<nbCases; x++)
-			for(int y=0; y<nbCases; y++)
-			{
+		int x=0, y=0, X=0, Y=0, z=0;
+		for(x=0; x<nbCases; x++)
+			for(y=0; y<nbCases; y++)
 				if(++z == caseChoisie) { X=x; Y=y; }
-			}
 		
 		tableauCases[X][Y].setDecouverte(true);
 		if(tableauCases[X][Y].isBombe()) perdu = true;
 
+		z = calculBombe(X, Y);
+		tableauCases[X][Y].setValeur(z);
+	}
+	
+	int calculBombe(int X, int Y) {
 		// calcule le nombre de bombes autour de cette case
-		int x=0, y=0; z=0;
+		int x=0, y=0, z=0;
 		for(x=-1; x<2; x++)
 			for(y=-1; y<2; y++)	{
 				try { if(tableauCases[X+x][Y+y].isBombe()) z++;}
 				catch(ArrayIndexOutOfBoundsException e) {} // évite un planton si on dépasse la taille de la matrice
 			}
-		tableauCases[X][Y].setValeur(z);
+		return z;
 	}
 	
 	void reglageDifficulte(Difficulte diff) {
