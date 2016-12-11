@@ -11,19 +11,23 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Grille {
 	Case tableauCases[][];
 	enum Difficulte {Facile, Moyen, Difficile};
-	int nbCases, nbMines, caseChoisie, nbCoups;
+	int nbCases, nbMines, caseChoisie, nbCoups, nbCaseDecouverte, nbChoixRestant;
 	Difficulte difficulte;
 	Scanner clavier = new Scanner(System.in);
 	boolean bombeDecouverte = false;
-	
+		
 	/**
 	 * Gère l'affichage du jeu
 	 */
 	void afficher(){
-		boolean perdu = false;
+		boolean perdu = false, gagné = false;
 		do
 		{
-			System.out.println("\nGRILLE | " + nbMines + " mines | "+(nbCases*nbCases-nbCoups)+" choix restants | "+nbCoups+" coups effectués");
+			nbCaseDecouverte = 0; // on parcous la matrice pour compter le nombre de cases découvertes
+			for(int x=0; x<nbCases; x++) for(int y=0; y<nbCases; y++) if(tableauCases[x][y].isDecouverte()) nbCaseDecouverte++; 
+			nbChoixRestant = nbCases*nbCases - nbCaseDecouverte - nbMines; // on en déduis le nombre de cases à découvrir
+			if(nbChoixRestant==0) gagné = true; // si on a plus aucune case à découvrir on a gagné
+			System.out.println("\nGRILLE | " + nbMines + " mines | "+(nbChoixRestant)+" choix restants | "+nbCoups+" coups effectués");
 			
 			int z=0; // on affiche les numéros de cases
 			for(int x=0; x<nbCases; x++) {
@@ -37,15 +41,18 @@ public class Grille {
 				for(int y=0; y<nbCases; y++) {
 					if(tableauCases[x][y].isBombe() && bombeDecouverte)
 						{ System.out.print(" X "); perdu=true;}
-					else if(tableauCases[x][y].isDecouverte())
+					else if(tableauCases[x][y].isDecouverte() || bombeDecouverte)
 						System.out.print(" "+tableauCases[x][y].getValeur()+" ");
 					else
 						System.out.print(" - ");
 				}
 				System.out.println();
 			}
+
 			
-			if(!perdu) {
+			if(perdu)		{ System.out.println("\nPERDU !");}
+			else if(gagné)	{ System.out.println("\nGAGNÉ !");}
+			else {
 				System.out.print("\nChoisir une case : ");
 				try { caseChoisie = clavier.nextInt();  } // si l'utilisateur n'entre pas un nombre
 				catch (InputMismatchException e) { System.out.println("ERREUR : Entrez un nombre !"); break; }
@@ -53,8 +60,7 @@ public class Grille {
 				decouvrirCase();
 				nbCoups++;
 			}
-			else System.out.println("\nPERDU !");
-		}while(!perdu);
+		}while(!perdu && !gagné);
 	}
 	
 	/**
@@ -70,15 +76,17 @@ public class Grille {
 		tableauCases[X][Y].setDecouverte(true);
 		if(tableauCases[X][Y].isBombe()) bombeDecouverte = true;
 
-		for(a=-1; a<2; a++)
-			for(b=-1; b<2; b++)
-			{ // propagation des zéros (pas tout à fait)
-				try {
-					if(tableauCases[X+a][Y+b].getValeur() == 0)
-						tableauCases[X+a][Y+b].setDecouverte(true);
+
+			for(a=-1; a<2; a++)
+				for(b=-1; b<2; b++)
+				{ // propagation des zéros (pas tout à fait)
+					try {
+						if(tableauCases[X+a][Y+b].getValeur() == 0)
+							tableauCases[X+a][Y+b].setDecouverte(true);
+					}
+					catch(ArrayIndexOutOfBoundsException e) {} // si on dépasse la taille de la matrice
 				}
-				catch(ArrayIndexOutOfBoundsException e) {} // si on dépasse la taille de la matrice
-			}
+
 	}
 	
 	/**
@@ -130,8 +138,6 @@ public class Grille {
 						try { if(tableauCases[x+a][y+b].isBombe()) z++;} // on compte le nombre de bombes
 						catch(ArrayIndexOutOfBoundsException e) {} // évite un plantage si on dépasse la taille de la matrice
 					}
-				
-			 	if (tableauCases[x][y].isBombe() == false)
 			 		tableauCases[x][y].setValeur(z);
 			 }
 	}
