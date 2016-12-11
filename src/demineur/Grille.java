@@ -67,26 +67,37 @@ public class Grille {
 	 * Action déclenchée lorsque l'on cherche à découvrir une case
 	 */
 	void decouvrirCase() {
-		int x=0, y=0, X=0, Y=0, a=0, b=0, z=0;
+		int X=0, Y=0, z=0;
 		// conversion entre les coordonnées de la matrice et le numéro de la case
-		for(x=0; x<nbCases; x++)
-			for(y=0; y<nbCases; y++)
+		for(int x=0; x<nbCases; x++)
+			for(int y=0; y<nbCases; y++)
 				if(++z == caseChoisie) { X=x; Y=y; }
 		
 		tableauCases[X][Y].setDecouverte(true);
-		if(tableauCases[X][Y].isBombe()) bombeDecouverte = true;
-
-
-			for(a=-1; a<2; a++)
-				for(b=-1; b<2; b++)
-				{ // propagation des zéros (pas tout à fait)
-					try {
-						if(tableauCases[X+a][Y+b].getValeur() == 0)
-							tableauCases[X+a][Y+b].setDecouverte(true);
+		if(tableauCases[X][Y].isBombe())
+			bombeDecouverte = true;
+		
+		// si on trouve zéro, on cherche s'il n'y en a pas d'autres autour
+		if(tableauCases[X][Y].getValeur()==0)
+			propagationZero(X, Y);
+	}
+	
+	void propagationZero(int X, int Y)
+	{
+		for(int a=-1; a<2; a++)
+			for(int b=-1; b<2; b++)
+			{ // propagation des zéros
+				try {
+					if(tableauCases[X+a][Y+b].getValeur() == 0)
+					{
+						tableauCases[X+a][Y+b].setDecouverte(true);
+						tableauCases[X][Y].setDrapeau(true);	// on note les zéros déjà découvert
+						if(!tableauCases[X+a][Y+b].isDrapeau()) // pour éviter un StackOverflowError
+							propagationZero(X+a, Y+b);
 					}
-					catch(ArrayIndexOutOfBoundsException e) {} // si on dépasse la taille de la matrice
 				}
-
+				catch(ArrayIndexOutOfBoundsException e) {} // si on dépasse la taille de la matrice
+			}
 	}
 	
 	/**
@@ -96,8 +107,8 @@ public class Grille {
 	void reglageDifficulte(Difficulte diff) {
 		switch(diff)
 		{
-			case Facile		: nbCases = 10; nbMines = 10; break;
-			case Moyen		: nbCases = 15; nbMines = 20; break;
+			case Facile	: nbCases = 10; nbMines = 10; break;
+			case Moyen	: nbCases = 15; nbMines = 20; break;
 			case Difficile	: nbCases = 20; nbMines = 30; break;
 		}
 		
@@ -123,7 +134,7 @@ public class Grille {
 			x = ThreadLocalRandom.current().nextInt(0, nbCases);
 			y = ThreadLocalRandom.current().nextInt(0, nbCases);
 			if(tableauCases[x][y].isBombe() == false) {	// on s'assure qu'il n'y a pas déjà une mine à cette case y
-				tableauCases[x][y].setBombe(true);		// sinon on n'incrémente pas i
+				tableauCases[x][y].setBombe(true);	// sinon on n'incrémente pas i
 				i++;
 			}
 		}
