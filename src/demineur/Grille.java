@@ -98,7 +98,13 @@ public class Grille {
 						tableauCases[X+a][Y+b].setDecouverte(true);
 						tableauCases[X][Y].setDrapeau(true);	// on note les zéros déjà découvert
 						if(!tableauCases[X+a][Y+b].isDrapeau()) // pour éviter un StackOverflowError
-							propagationZero(X+a, Y+b);	// appel récursif avec nouvelles coordonnées
+							propagationZero(X+a, Y+b);			// appel récursif avec nouvelles coordonnées
+						
+						// parcours des cases adjacentes
+						for(int A=-1; A<2; A++)
+							for(int B=-1; B<2; B++)
+								// découvre les cases ajacentes aux zéros
+								tableauCases[X+a+A][Y+b+B].setDecouverte(true);
 					}
 				}
 				catch(ArrayIndexOutOfBoundsException e) {} // si on dépasse la taille de la matrice
