@@ -82,18 +82,23 @@ public class Grille {
 			propagationZero(X, Y);
 	}
 	
+	/*
+	 * Algorithme récursif qui permet la propagation des zéros
+	 * @param X : coordonnées X de la case découverte (abscisses)
+	 * @param Y : coordonnées Y de la case découverte (ordonnées)
+	 */
 	void propagationZero(int X, int Y)
 	{
 		for(int a=-1; a<2; a++)
 			for(int b=-1; b<2; b++)
-			{ // propagation des zéros
+			{ // on parcours toutes les cases adjacentes
 				try {
 					if(tableauCases[X+a][Y+b].getValeur() == 0)
 					{
 						tableauCases[X+a][Y+b].setDecouverte(true);
 						tableauCases[X][Y].setDrapeau(true);	// on note les zéros déjà découvert
 						if(!tableauCases[X+a][Y+b].isDrapeau()) // pour éviter un StackOverflowError
-							propagationZero(X+a, Y+b);
+							propagationZero(X+a, Y+b);	// appel récursif avec nouvelles coordonnées
 					}
 				}
 				catch(ArrayIndexOutOfBoundsException e) {} // si on dépasse la taille de la matrice
@@ -134,7 +139,7 @@ public class Grille {
 			x = ThreadLocalRandom.current().nextInt(0, nbCases);
 			y = ThreadLocalRandom.current().nextInt(0, nbCases);
 			if(tableauCases[x][y].isBombe() == false) {	// on s'assure qu'il n'y a pas déjà une mine à cette case y
-				tableauCases[x][y].setBombe(true);	// sinon on n'incrémente pas i
+				tableauCases[x][y].setBombe(true);		// sinon on n'incrémente pas i
 				i++;
 			}
 		}
