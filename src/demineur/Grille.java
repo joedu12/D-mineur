@@ -10,9 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class Grille {
 	Case tableauCases[][];
-	enum Difficulte {Facile, Moyen, Difficile};
 	int nbCases, nbMines, caseChoisie, nbCoups, nbCaseDecouverte, nbChoixRestant;
-	Difficulte difficulte;
 	Scanner clavier = new Scanner(System.in);
 	boolean bombeDecouverte = false;
 		
@@ -113,17 +111,25 @@ public class Grille {
 	
 	/**
 	 * Méthode pour régler la difficulté
-	 * @param Énumération Difficulté
 	 */
-	void reglageDifficulte(Difficulte diff) {
-		switch(diff)
-		{
-			case Facile	: nbCases = 10; nbMines = 10; break;
-			case Moyen	: nbCases = 15; nbMines = 20; break;
-			case Difficile	: nbCases = 20; nbMines = 30; break;
-		}
+	void reglageDifficulté() {
 		
-		this.difficulte = diff;
+		int difficulté = 0;
+		System.out.println("\nChoissisez la difficulté :\n(1) Facile \n(2) Moyen \n(3) Difficile\n");
+		try { difficulté = clavier.nextInt();  } // si l'utilisateur n'entre pas un nombre
+		catch (InputMismatchException e) { System.out.println("ERREUR : Entrez un nombre !"); }
+		
+		switch(difficulté)
+		{
+			case 1:
+				nbCases = 10; nbMines = 10; break;
+			case 2:
+				nbCases = 15; nbMines = 20; break;
+			case 3:
+				nbCases = 20; nbMines = 50; break;
+			default:
+				nbCases = 15; nbMines = 20; break;	
+		}
 	}
 	
 	/**
@@ -131,6 +137,8 @@ public class Grille {
 	 * calcule le nombre de mines présentes sur les cases adjacentes
 	 */
 	void initialisation() {
+		reglageDifficulté();
+		
 		// on initialise la matrice de cases
 		int i=0, x=0, y=0, a=0, b=0, z=0;
 		tableauCases = new Case[nbCases][nbCases];
@@ -173,7 +181,6 @@ public class Grille {
 		System.out.println("******************************");
 		
 		Grille grille = new Grille();
-		grille.reglageDifficulte(Difficulte.Facile);
 		grille.initialisation();
 		grille.afficher();
 	}
