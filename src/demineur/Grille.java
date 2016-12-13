@@ -19,30 +19,37 @@ public class Grille {
 	 */
 	void afficher(){
 		boolean perdu = false, gagné = false;
+		
 		do
 		{
-			nbCaseDecouverte = 0; 
+			nbCaseDecouverte = 0;
 			// on parcous la matrice pour compter le nombre de cases découvertes
 			for(int x=0; x<nbCases; x++){
 				for(int y=0; y<nbCases; y++){
-					if(tableauCases[x][y].isDecouverte()) nbCaseDecouverte++; 
+					if(tableauCases[x][y].isDecouverte())
+						nbCaseDecouverte++; 
 				}
 			}
-			nbChoixRestant = nbCases*nbCases - nbCaseDecouverte - nbMines; // on en déduis le nombre de cases à découvrir
-			if(nbChoixRestant==0) gagné = true; // si on a plus aucune case à découvrir on a gagné
+			
+			nbChoixRestant = nbCases*nbCases - nbCaseDecouverte - nbMines; // on en déduis le nombre de cases qu'il reste à découvrir
+			if(nbChoixRestant==0)
+				gagné = true; // si on a plus aucune case à découvrir on a gagné
+			
 			System.out.println("\nGRILLE | " + nbMines + " mines | "+(nbChoixRestant)+" choix restants | "+nbCoups+" coups effectués");
 			
-			int z=0; // on affiche les numéros de cases
+			// on affiche les numéros de cases
+			int z=0; 
 			for(int x=0; x<nbCases; x++) {
 				for(int y=0; y<nbCases; y++)
 					System.out.printf("%03d ", ++z);
 				System.out.println();
 			}
 			
+			//on affiche l'état de la grille
 			System.out.println("\nGRILLE OUVERTE");
 			for(int x=0; x<nbCases; x++) {
 				for(int y=0; y<nbCases; y++) {
-					if(tableauCases[x][y].isBombe() && bombeDecouverte)
+					if(tableauCases[x][y].isMine() && bombeDecouverte)
 						{ System.out.print(" X "); perdu=true;}
 					else if(tableauCases[x][y].isDecouverte() || bombeDecouverte)
 						System.out.print(" "+tableauCases[x][y].getValeur()+" ");
@@ -57,9 +64,10 @@ public class Grille {
 			else if(gagné)	{ System.out.println("\nGAGNÉ !");}
 			else {
 				System.out.print("\nChoisir une case : ");
-				try { caseChoisie = clavier.nextInt();  } // si l'utilisateur n'entre pas un nombre
+				// si l'utilisateur n'entre pas un nombre
+				try { caseChoisie = clavier.nextInt();  } 
 				catch (InputMismatchException e) { System.out.println("ERREUR : Entrez un nombre !"); break; }
-				
+				//sinon on decouvre la case associee
 				decouvrirCase();
 				nbCoups++;
 			}
@@ -77,7 +85,7 @@ public class Grille {
 				if(++z == caseChoisie) { X=x; Y=y; }
 		
 		tableauCases[X][Y].setDecouverte(true);
-		if(tableauCases[X][Y].isBombe())
+		if(tableauCases[X][Y].isMine())
 			bombeDecouverte = true;
 		
 		// si on trouve zéro, on cherche s'il n'y en a pas d'autres autour
@@ -103,10 +111,10 @@ public class Grille {
 						if(!tableauCases[X+a][Y+b].isDrapeau()) // pour éviter un StackOverflowError
 							propagationZero(X+a, Y+b);			// appel récursif avec nouvelles coordonnées
 						
-						// parcours des cases adjacentes
+						// parcours des cases adjacentes des nouvelles coordonnées
 						for(int A=-1; A<2; A++)
 							for(int B=-1; B<2; B++)
-								// découvre les cases ajacentes aux zéros
+								// découvre les cases ajacentes aux zéros propagés
 								tableauCases[X+a+A][Y+b+B].setDecouverte(true);
 					}
 				}
@@ -121,7 +129,7 @@ public class Grille {
 		
 		int difficulté = 0;
 		System.out.println("\nChoissisez la difficulté :\n(1) Facile \n(2) Moyen \n(3) Difficile\n");
-		try { difficulté = clavier.nextInt();  } // si l'utilisateur n'entre pas un nombre
+		try { difficulté = clavier.nextInt();  } // si l'utilisateur n'entre pas un entier
 		catch (InputMismatchException e) { System.out.println("ERREUR : Entrez un nombre !"); }
 		
 		switch(difficulté)
@@ -144,21 +152,22 @@ public class Grille {
 	void initialisation() {
 		reglageDifficulté();
 		
-		// on initialise la matrice de cases
-		int i=0, x=0, y=0, a=0, b=0, z=0;
+		//déclarations
+		int i=0, x=0, y=0, a=0, b=0, nbMinesAdj=0;
 		tableauCases = new Case[nbCases][nbCases];
 		
+		//on initialise la matrice de cases
 		for(x=0; x<nbCases; x++)
 			for(y=0; y<nbCases; y++)
 				tableauCases[x][y] = new Case();
 
-		// on place les mines
+		// on place les mines de manière aléatoire
 		while (i<nbMines)
 		{
 			x = ThreadLocalRandom.current().nextInt(0, nbCases);
 			y = ThreadLocalRandom.current().nextInt(0, nbCases);
-			if(tableauCases[x][y].isBombe() == false) {	// on s'assure qu'il n'y a pas déjà une mine à cette case y
-				tableauCases[x][y].setBombe(true);		// sinon on n'incrémente pas i
+			if(tableauCases[x][y].isMine() == false) {	//si la case est vide (n'a pas de mine)
+				tableauCases[x][y].setMine(true);		// on ajoute une mine et on incremente i
 				i++;
 			}
 		}
@@ -167,13 +176,13 @@ public class Grille {
 		 for(x=0; x<nbCases; x++)
 			 for(y=0; y<nbCases; y++)
 			 { // on parcours toutes les cases
-				z=0;
+				nbMinesAdj=0;
 				for(a=-1; a<2; a++)
 					for(b=-1; b<2; b++)	{ // on parcours les cases adjacentes
-						try { if(tableauCases[x+a][y+b].isBombe()) z++;} // on compte le nombre de bombes
+						try { if(tableauCases[x+a][y+b].isMine()) nbMinesAdj++;} // on compte le nombre de mines
 						catch(ArrayIndexOutOfBoundsException e) {} // évite un plantage si on dépasse la taille de la matrice
 					}
-			 		tableauCases[x][y].setValeur(z);
+			 		tableauCases[x][y].setValeur(nbMinesAdj);
 			 }
 	}
 	
