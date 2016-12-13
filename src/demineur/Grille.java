@@ -21,8 +21,13 @@ public class Grille {
 		boolean perdu = false, gagné = false;
 		do
 		{
-			nbCaseDecouverte = 0; // on parcous la matrice pour compter le nombre de cases découvertes
-			for(int x=0; x<nbCases; x++) for(int y=0; y<nbCases; y++) if(tableauCases[x][y].isDecouverte()) nbCaseDecouverte++; 
+			nbCaseDecouverte = 0; 
+			// on parcous la matrice pour compter le nombre de cases découvertes
+			for(int x=0; x<nbCases; x++){
+				for(int y=0; y<nbCases; y++){
+					if(tableauCases[x][y].isDecouverte()) nbCaseDecouverte++; 
+				}
+			}
 			nbChoixRestant = nbCases*nbCases - nbCaseDecouverte - nbMines; // on en déduis le nombre de cases à découvrir
 			if(nbChoixRestant==0) gagné = true; // si on a plus aucune case à découvrir on a gagné
 			System.out.println("\nGRILLE | " + nbMines + " mines | "+(nbChoixRestant)+" choix restants | "+nbCoups+" coups effectués");
